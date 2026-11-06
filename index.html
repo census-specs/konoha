@@ -332,45 +332,95 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
 
 /* Tutorial overlay */
 .tutorial-backdrop{
-  position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.78);
-  display:flex;align-items:center;justify-content:center;padding:20px;
+  position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.82);
+  display:flex;align-items:center;justify-content:center;padding:18px;
   backdrop-filter:blur(8px);animation:fade .25s;
 }
 .tutorial{
   background:linear-gradient(160deg, #1c2028, #14171c);
   border:1px solid rgba(124,108,255,.3);
-  border-radius:22px;padding:24px;width:100%;max-width:400px;
-  box-shadow:0 25px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.05) inset;
+  border-radius:22px;padding:18px 18px 16px;width:100%;max-width:400px;
+  box-shadow:0 25px 80px rgba(0,0,0,.7);
   animation:tutorialIn .35s cubic-bezier(.2,.8,.2,1);
-  max-height:90vh;overflow-y:auto;color:#e9ecf1;
+  max-height:92vh;display:flex;flex-direction:column;gap:12px;color:#e9ecf1;overflow:hidden;
 }
 @keyframes tutorialIn{
   from{opacity:0;transform:translateY(20px) scale(.95);}
-  to{opacity:1;transform:translateY(0) scale(1);}
+  to{opacity:1;transform:none;}
 }
-.tutorial-header{text-align:center;margin-bottom:20px;}
-.tutorial-header h2{margin:0 0 6px;font-size:20px;font-weight:800;letter-spacing:-.4px;background:linear-gradient(120deg,#e9ecf1,var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-.tutorial-header p{margin:0;color:#8d949e;font-size:13px;line-height:1.5;}
-.tutorial-items{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
-.tutorial-item{
-  display:flex;gap:14px;align-items:center;
-  padding:14px;border-radius:14px;
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.06);
-}
-.tutorial-illust{
-  width:70px;height:56px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  color:var(--accent);
-}
-.tutorial-illust svg{width:100%;height:100%;}
-.tutorial-text{flex:1;min-width:0;}
-.tutorial-text strong{display:block;font-size:14px;font-weight:700;margin-bottom:3px;color:#fff;}
-.tutorial-text span{display:block;font-size:12.5px;line-height:1.45;color:#8d949e;}
-.tutorial-footer{display:flex;flex-direction:column;gap:12px;}
-.tutorial-check{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#8d949e;cursor:pointer;user-select:none;}
-.tutorial-check input{accent-color:var(--accent);}
-.tutorial-footer .btn-primary{margin-top:0;width:100%;justify-content:center;}
+.tut-top{display:flex;align-items:center;justify-content:space-between;flex:none;}
+.tut-count{color:#8d949e;font-size:12px;font-weight:700;letter-spacing:.6px;}
+.tut-skip{background:none;border:0;color:#8d949e;font-size:12.5px;padding:4px 2px;cursor:pointer;}
+.tut-progress{height:3px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;flex:none;}
+.tut-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.tut-stage{position:relative;flex:none;height:232px;background:#07080c;border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;touch-action:none;}
+.tut-live{position:absolute;inset:0;animation:tutStepIn .3s cubic-bezier(.2,.8,.2,1);}
+@keyframes tutStepIn{from{opacity:0;transform:translateX(14px);}to{opacity:1;transform:none;}}
+.tut-title{margin:0;font-size:17px;font-weight:800;color:#fff;flex:none;}
+.tut-desc{margin:0;color:#8d949e;font-size:13px;line-height:1.55;flex:none;min-height:41px;}
+.tut-dots{display:flex;gap:6px;justify-content:center;flex:none;}
+.tut-dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.16);border:0;padding:0;cursor:pointer;transition:background .25s,width .25s;}
+.tut-dot.on{background:var(--accent);width:16px;}
+.tut-actions{display:flex;flex-direction:column;gap:10px;align-items:stretch;flex:none;}
+.tut-actions .btn-primary{margin:0;width:100%;justify-content:center;}
+.tut-check{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#8d949e;cursor:pointer;user-select:none;justify-content:center;}
+.tut-check input{accent-color:var(--accent);}
+.tut-3d{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;perspective:800px;}
+.tut-page{position:relative;width:120px;height:172px;border-radius:6px;background:#f5f2ea;box-shadow:0 12px 32px rgba(0,0,0,.55);overflow:hidden;}
+.tut-page svg{position:absolute;inset:0;width:100%;height:100%;display:block;}
+.tut-edge{position:absolute;top:0;bottom:0;width:31%;z-index:6;cursor:pointer;}
+.tut-edge.l{left:0;background:linear-gradient(90deg,rgba(124,108,255,.12),transparent);}
+.tut-edge.r{right:0;background:linear-gradient(-90deg,rgba(124,108,255,.12),transparent);}
+.tut-ripple{position:absolute;width:46px;height:46px;border-radius:50%;border:2px solid var(--accent);background:rgba(124,108,255,.25);transform:translate(-50%,-50%) scale(0);pointer-events:none;z-index:8;animation:tutRipple .7s ease-out both;}
+@keyframes tutRipple{0%{transform:translate(-50%,-50%) scale(.2);opacity:1;}100%{transform:translate(-50%,-50%) scale(1.2);opacity:0;}}
+.tut-hand{position:absolute;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 2px 12px rgba(0,0,0,.5);z-index:9;pointer-events:none;opacity:0;transform:translate(-50%,-50%);}
+.tut-hand.play{animation:tutPress 2.6s ease-in-out infinite;}
+@keyframes tutPress{0%{opacity:0;transform:translate(-50%,-50%) scale(.7);}12%{opacity:1;transform:translate(-50%,-50%) scale(1);}24%{transform:translate(-50%,-50%) scale(.8);}60%{opacity:1;transform:translate(-50%,-50%) scale(.8);}74%{opacity:0;transform:translate(-50%,-50%) scale(1);}100%{opacity:0;}}
+.tut-hand.swipe{animation:tutSwipeH 2.8s ease-in-out infinite;}
+@keyframes tutSwipeH{0%{opacity:0;left:72%;top:50%;}14%{opacity:1;}48%{left:24%;opacity:1;}58%{left:24%;opacity:0;}100%{left:72%;opacity:0;}}
+.tut-note{position:absolute;left:0;right:0;bottom:9px;text-align:center;color:#8d949e;font-size:11.5px;z-index:7;pointer-events:none;}
+.tut-grid{position:absolute;inset:14px 14px 34px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;}
+.tut-cell{position:relative;border-radius:6px;background:#e9e5d8;border:1px solid #b9b29c;display:flex;align-items:flex-end;padding:6px;}
+.tut-cell b{font-size:13px;color:#8d8570;font-weight:800;}
+.tut-hl{position:absolute;inset:-2px;border:2px solid var(--accent);border-radius:8px;opacity:0;pointer-events:none;box-shadow:0 0 16px rgba(124,108,255,.55);}
+.tut-hl.s{animation:tutHl 7.2s infinite;}
+@keyframes tutHl{0%{opacity:0;}2%{opacity:1;}20%{opacity:1;}26%{opacity:0;}100%{opacity:0;}}
+.tut-bar{position:absolute;left:0;right:0;height:26px;background:linear-gradient(160deg,#22262f,#181b21);z-index:5;display:flex;align-items:center;gap:6px;padding:0 12px;border-bottom:1px solid rgba(124,108,255,.2);}
+.tut-bar i{display:inline-block;width:10px;height:10px;border-radius:3px;background:rgba(255,255,255,.22);}
+.tut-bar.top{top:0;transform:translateY(-32px);transition:transform .35s cubic-bezier(.2,.8,.2,1);}
+.tut-bar.bot{bottom:0;transform:translateY(32px);transition:transform .35s cubic-bezier(.2,.8,.2,1);}
+.tut-live.bars .tut-bar.top{transform:none;}
+.tut-live.bars .tut-bar.bot{transform:none;}
+.tut-zpage{transition:transform .35s cubic-bezier(.2,.8,.2,1);}
+.tut-live.zoomed .tut-zpage{transform:scale(1.45);}
+.tut-live.zauto .tut-zpage{animation:tutZPulse 3.2s ease-in-out infinite;}
+@keyframes tutZPulse{30%,80%{transform:scale(1);}55%{transform:scale(1.45);}}
+.tut-finger{position:absolute;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.92);z-index:9;pointer-events:none;opacity:0;transform:translate(-50%,-50%);}
+.tut-finger.p1{animation:tutPin1 3.2s ease-in-out infinite;}
+.tut-finger.p2{animation:tutPin2 3.2s ease-in-out infinite;}
+@keyframes tutPin1{0%{opacity:0;left:44%;top:44%;}15%{opacity:1;}30%{left:44%;top:44%;}55%{left:35%;top:35%;opacity:1;}80%{left:44%;top:44%;opacity:0;}100%{opacity:0;}}
+@keyframes tutPin2{0%{opacity:0;left:54%;top:54%;}15%{opacity:1;}30%{left:54%;top:54%;}55%{left:63%;top:63%;opacity:1;}80%{left:54%;top:54%;opacity:0;}100%{opacity:0;}}
+.tut-spread{position:absolute;inset:0;display:flex;gap:7px;align-items:center;justify-content:center;transition:opacity .35s;}
+.tut-spread .tut-page{width:92px;height:132px;}
+.tut-spread .tut-page.r{transform-origin:left center;animation:tutFlipSpread 3.4s ease-in-out infinite;}
+@keyframes tutFlipSpread{0%,18%{transform:rotateY(0);}45%,68%{transform:rotateY(-72deg);}92%,100%{transform:rotateY(0);}}
+.tut-vwrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:opacity .35s;opacity:0;}
+.tut-live.vmode .tut-spread{opacity:0;}
+.tut-live.vmode .tut-vwrap{opacity:1;}
+.tut-strip{width:104px;height:182px;border-radius:8px;overflow:hidden;border:1px solid #b9b29c;background:#f5f2ea;position:relative;}
+.tut-strip .roll{position:absolute;left:6px;right:6px;top:0;display:flex;flex-direction:column;gap:8px;animation:tutRoll 3.6s linear infinite;}
+@keyframes tutRoll{from{transform:translateY(0);}to{transform:translateY(-33.333%);}}
+.tut-cellp{height:56px;border-radius:4px;background:#e6e2d3;border:1px solid #b9b29c;flex:none;}
+.tut-ring{position:absolute;left:50%;top:50%;width:74px;height:74px;border-radius:50%;border:2px solid var(--accent);transform:translate(-50%,-50%) scale(0);opacity:0;z-index:8;pointer-events:none;}
+.tut-live.hauto .tut-ring{animation:tutRingAuto 4.6s infinite;}
+@keyframes tutRingAuto{0%,16%{opacity:0;transform:translate(-50%,-50%) scale(0);}20%{opacity:.9;}58%{transform:translate(-50%,-50%) scale(1);opacity:.9;}64%,100%{opacity:0;transform:translate(-50%,-50%) scale(1);}}
+.tut-menu{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.8);opacity:0;background:linear-gradient(160deg,#22262f,#181b21);border:1px solid rgba(124,108,255,.35);border-radius:12px;padding:8px;width:190px;z-index:10;transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .25s;pointer-events:none;}
+.tut-menu.open{transform:translate(-50%,-50%) scale(1);opacity:1;}
+.tut-menu div{font-size:12px;color:#cfd4dd;padding:8px 10px;border-radius:8px;display:flex;align-items:center;gap:8px;}
+.tut-live.hauto .tut-menu{animation:tutMenuAuto 4.6s infinite;}
+@keyframes tutMenuAuto{0%,58%{transform:translate(-50%,-50%) scale(.8);opacity:0;}68%,92%{transform:translate(-50%,-50%) scale(1);opacity:1;}100%{transform:translate(-50%,-50%) scale(.8);opacity:0;}}
+.tut-hand.hold{animation:tutHoldPress 4.6s ease-in-out infinite;}
+@keyframes tutHoldPress{0%{opacity:0;transform:translate(-50%,-50%) scale(.7);}16%{opacity:1;transform:translate(-50%,-50%) scale(1);}24%{transform:translate(-50%,-50%) scale(.82);}58%{opacity:1;transform:translate(-50%,-50%) scale(.82);}68%{opacity:0;transform:translate(-50%,-50%) scale(1);}100%{opacity:0;}}
 
 /* Sheets */
 .sheet-backdrop{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;backdrop-filter:blur(4px);animation:fade .2s;}
@@ -1011,6 +1061,79 @@ const $$=(s,r)=>Array.prototype.slice.call((r||document).querySelectorAll(s));
 function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
 function uid(){ try{ return crypto.randomUUID(); }catch(e){ return 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,9); } }
 function cleanTitle(name){ return name.replace(/\.(cbz|cbr|zip|pdf|epub)$/i,'').replace(/[_]+/g,' ').replace(/\s+/g,' ').trim(); }
+/* ============ ANALYSE INTELLIGENTE DES NOMS DE FICHIERS ============ */
+function deaccent(s){ try{ return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,''); }catch(e){ return String(s); } }
+function smartCase(s){
+  const letters=String(s).replace(/[^A-Za-zÀ-ÿ]/g,'');
+  if(!letters)return s;
+  if(letters!==letters.toLowerCase()&&letters!==letters.toUpperCase())return s;
+  const SMALL=['de','du','des','la','le','les','en','et','a','au','aux','un','une','no','na','the','of','vs','ou'];
+  const words=String(s).toLowerCase().split(' ');
+  for(let i=0;i<words.length;i++){
+    const w=words[i];
+    if(i>0&&SMALL.indexOf(w)>=0)continue;
+    if(w)words[i]=w.charAt(0).toUpperCase()+w.slice(1);
+  }
+  return words.join(' ');
+}
+const SMART_PAREN_TAG=/^(?:vf|vfq|vfi|vf\d*|fr|french|francais|francaise|raw|scan|scans|trad|traduction|hd|couleur|couleurs|color|edition|deluxe|complet|vostfr|multilingual|digit|digital|rip)$/i;
+const SMART_WORD_TAG=/^(?:vf|vfq|vfi|vf\d*|fr|french|francais|francaise|raw|scan|scans|trad|traduction|hd|fullcolor|webp|rip)$/i;
+function smartCut(s,start,end){ return s.slice(0,start)+' '+s.slice(end); }
+function smartFindNum(s,re){
+  re.lastIndex=0; let m,guard=0;
+  while((m=re.exec(s))&&guard<20){
+    guard++;
+    const before=m.index===0?' ':s.charAt(m.index-1);
+    if(/[A-Za-zÀ-ÿ0-9]/.test(before))continue;
+    return { raw:m[1], start:m.index, end:m.index+m[0].length };
+  }
+  return null;
+}
+const SMART_VOL_RE=/(?:tomes?|vol(?:ume)?s?|v|t)(?:[\s_.#°]*)(\d{1,4}(?:[.,]\d+)?)(?=[\s_\-.:;,)\]}\u2013\u2014&]|$)/gi;
+const SMART_CHAP_RE=/(?:chapters?|chapitres?|chaps?|ch)(?:[\s_.#°]*)(\d{1,4}(?:[.,]\d+)?)(?=[\s_\-.:;,)\]}\u2013\u2014&]|$)/gi;
+const SMART_HASH_RE=/#(\d{1,4}(?:[.,]\d+)?)(?=[\s_\-.:;,)\]}\u2013\u2014&]|$)/gi;
+const SMART_TAIL_RE=/(?:^|\s)(\d{1,4}(?:[.,]\d+)?)\s*(?:[-\u2013]\s*\d{1,4}(?:[.,]\d+)?)?(?:\s*[\(\[{][^\)\]}]*[\)\]}])*$/;
+function smartParse(fileName){
+  const base=cleanTitle(fileName);
+  if(!base)return { series:'', volume:null, chapter:null, title:base, how:'aucun' };
+  let s=base, volume=null, chapter=null, how='numero';
+  const fc=smartFindNum(s,SMART_CHAP_RE);
+  if(fc){ chapter=fc.raw; s=smartCut(s,fc.start,fc.end); how='mot-cle'; }
+  const fv=smartFindNum(s,SMART_VOL_RE);
+  if(fv){ volume=fv.raw; s=smartCut(s,fv.start,fv.end); how='mot-cle'; }
+  if(volume==null&&chapter==null){
+    const fh=smartFindNum(s,SMART_HASH_RE);
+    if(fh){ chapter=fh.raw; s=smartCut(s,fh.start,fh.end); how='mot-cle'; }
+  }
+  if(volume==null&&chapter==null){
+    const tm=SMART_TAIL_RE.exec(s);
+    if(tm){
+      const before=s.slice(0,tm.index);
+      const last=before.match(/([A-Za-zÀ-ÿ0-9°#._-]+)\s*$/);
+      const lastWord=(last?last[1]:'').toLowerCase().replace(/[.]+$/,'');
+      const num=tm[1];
+      const isYear=/^(19|20)\d{2}$/.test(num)&&/[a-zà-ÿ]/i.test(before);
+      const noLead=/^(?:no|n|numero|num)$/.test(lastWord);
+      if(!isYear&&!noLead){
+        volume=num; s=before.replace(/[\s_]+$/,'');
+      }
+    }
+  }
+  const normNum=function(v){ if(v==null)return null; if(/^\d+$/.test(v))return Number(v); const f=parseFloat(String(v).replace(',','.')); return isNaN(f)?v:f; };
+  volume=normNum(volume); chapter=normNum(chapter);
+  let ser=s.replace(/\[[^\]]*\]/g,' ').replace(/\{[^}]*\}/g,' ')
+    .replace(/\(([^)]*)\)/g,function(full,inner){ return (SMART_PAREN_TAG.test(inner.trim())||/^\d{4}$/.test(inner.trim()))?' ':full; });
+  let words=ser.split(/\s+/).filter(Boolean);
+  words=words.filter(w=>!SMART_WORD_TAG.test(w.replace(/^[-–—_\-.:,;]+|[-–—_\-.:,;]+$/g,'')));
+  ser=words.join(' ').replace(/\s*[-–—]\s*$/,'').replace(/^[\s]*[-–—][\s]*/,'').replace(/\s{2,}/g,' ').trim();
+  if(volume==null&&chapter==null)return { series:'', volume:null, chapter:null, title:base, how:'aucun' };
+  if(!ser)return { series:'', volume, chapter, title:base, how };
+  ser=smartCase(ser);
+  let title=ser;
+  if(volume!=null)title=ser+' · Tome '+volume;
+  else if(chapter!=null)title=ser+' · Chapitre '+chapter;
+  return { series:ser, volume, chapter, title, how };
+}
 function escapeHTML(s){ return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
 let toastTimer;
 function toast(msg){ const t=$('#toast'); if(!t)return; t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3000); }
@@ -1051,9 +1174,9 @@ function applyTheme(){ document.documentElement.dataset.theme=settings.theme; co
 
 /* ============ SERIES ============ */
 function getSeriesNameFromComic(c){ return (c.series&&c.series.trim())?c.series.trim():''; }
-function seriesKey(n){ return n.toLowerCase(); }
+function seriesKey(n){ return deaccent(String(n).toLowerCase()).replace(/\s+/g,' ').trim(); }
 function getSeriesMeta(n){ if(!n)return null; const k=seriesKey(n); return seriesList.find(s=>seriesKey(s.name)===k)||null; }
-function comicsOfSeries(n){ const k=seriesKey(n); return comics.filter(c=>seriesKey(getSeriesNameFromComic(c))===k).sort((a,b)=>{ const va=a.volume!=null?a.volume:0, vb=b.volume!=null?b.volume:0; if(va!==vb)return va-vb; return a.title.localeCompare(b.title,'fr',{numeric:true}); }); }
+function comicsOfSeries(n){ const k=seriesKey(n); return comics.filter(c=>seriesKey(getSeriesNameFromComic(c))===k).sort((a,b)=>{ const va=a.volume!=null?a.volume:(a.chapterTag!=null?a.chapterTag:0), vb=b.volume!=null?b.volume:(b.chapterTag!=null?b.chapterTag:0); if(va!==vb)return va-vb; return a.title.localeCompare(b.title,'fr',{numeric:true}); }); }
 function getDistinctSeries(){
   const map=new Map();
   comics.forEach(c=>{ const n=getSeriesNameFromComic(c); if(!n)return; const k=seriesKey(n); if(!map.has(k))map.set(k,{name:n}); });
@@ -1683,6 +1806,7 @@ function cardHTML(c){
   if(c.favorite)icons+='<div class="cover-ico fav">'+icon('star')+'</div>';
   if(c.finished)icons+='<div class="cover-ico done">'+icon('check')+'</div>';
   if(c.volume!=null&&c.volume!=='')icons+='<div class="cover-ico vol">T'+escapeHTML(c.volume)+'</div>';
+  else if(c.chapterTag!=null&&c.chapterTag!=='')icons+='<div class="cover-ico vol">#'+escapeHTML(c.chapterTag)+'</div>';
   const bar=showBar?'<div class="progressbar"><div style="width:'+pct+'%"></div></div>':'';
   const subtitle=c.series?escapeHTML(c.series)+(c.author?' · '+escapeHTML(c.author):''):(c.author?escapeHTML(c.author):'');
   return '<div class="card'+(selectionMode&&selectedIds.has(c.id)?' selected':'')+'" data-id="'+c.id+'"><div class="cover">'+cover+icons+(selectionMode?'<div class="sel-check">'+icon('check')+'</div>':'')+bar+'</div><div class="card-title">'+escapeHTML(c.title)+'</div>'+(subtitle?'<div class="card-sub">'+subtitle+'</div>':'')+'</div>';
@@ -1701,7 +1825,10 @@ function seriesCardHTML(s){
     if(covers[1])html+='<div class="series-stack s2"><img src="'+covers[1]+'" loading="lazy" alt=""></div>';
     html+='<div class="series-front"><img src="'+covers[0]+'" loading="lazy" alt=""></div>';
   }
-  html+='<div class="series-badge">'+icon('book')+' '+list.length+'</div></div><div class="card-title">'+escapeHTML(s.name)+'</div></div>';
+  const smeta=getSeriesMeta(s.name);
+  const unit=list.some(x=>x.chapterTag!=null||(x.online&&x.online.as&&x.online.as.chapter))?'chapitres':'tomes';
+  const sub=((smeta&&smeta.author)?escapeHTML(smeta.author)+' · ':'')+list.length+' '+unit;
+  html+='<div class="series-badge">'+icon('book')+' '+list.length+'</div></div><div class="card-title">'+escapeHTML(s.name)+'</div><div class="card-sub">'+sub+'</div></div>';
   return html;
 }
 function applyFilters(list){
@@ -1777,7 +1904,7 @@ function renderSeries(){
   if(!grid||!emptyEl)return;
   const list=getDistinctSeries();
   $('#series-count').textContent=list.length;
-  if(!list.length){ grid.innerHTML=''; emptyEl.classList.remove('hidden'); emptyEl.innerHTML='<div class="empty-icon">'+icon('collection')+'</div><h2>Aucune série</h2><p>Assignez un nom de série à vos mangas pour les regrouper ici.</p>'; return; }
+  if(!list.length){ grid.innerHTML=''; emptyEl.classList.remove('hidden'); emptyEl.innerHTML='<div class="empty-icon">'+icon('collection')+'</div><h2>Aucune série</h2><p>Konoha détecte automatiquement les séries à partir des noms de fichiers (Tome 12, v03, chapitre 110…). Vous pouvez aussi utiliser « Classer automatiquement mes mangas » dans le menu ⋮.</p>'; return; }
   emptyEl.classList.add('hidden');
   grid.innerHTML=list.map(s=>seriesCardHTML({name:s.name})).join('');
 }
@@ -2007,7 +2134,8 @@ async function storeConvertedPages(file,pages){
   const zipBlob=buildStoreZip(entries);
   const blob=new File([zipBlob],(file.name.replace(/\.[^.]+$/,'')||'manga')+'.cbz',{type:'application/zip'});
   const cover=await makeCover(new Blob([entries[0].u8]));
-  const meta={ id:uid(), title:cleanTitle(file.name), cover, pageCount:pages.length, currentPage:0, addedAt:Date.now(), lastReadAt:0, finished:false, favorite:false, series:'', author:'', volume:null, genres:[], status:'', notes:'' };
+  const parsedCv=smartParse(file.name);
+  const meta={ id:uid(), title:parsedCv.title, cover, pageCount:pages.length, currentPage:0, addedAt:Date.now(), lastReadAt:0, finished:false, favorite:false, series:parsedCv.series, author:'', volume:parsedCv.volume, chapterTag:parsedCv.chapter, genres:[], status:'', notes:'', fileName:file.name };
   await DB.putComic(meta);
   await DB.putFile(meta.id,blob);
 }
@@ -2056,7 +2184,8 @@ async function importOne(file){
   if(!pages.length)throw new Error("Aucune image dans l'archive");
   const firstBlob=await zip.extract(pages[0]);
   const cover=await makeCover(firstBlob);
-  const meta={ id:uid(), title:cleanTitle(file.name), cover, pageCount:pages.length, currentPage:0, addedAt:Date.now(), lastReadAt:0, finished:false, favorite:false, series:'', author:'', volume:null, genres:[], status:'', notes:'' };
+  const parsed=smartParse(file.name);
+  const meta={ id:uid(), title:parsed.title, cover, pageCount:pages.length, currentPage:0, addedAt:Date.now(), lastReadAt:0, finished:false, favorite:false, series:parsed.series, author:'', volume:parsed.volume, chapterTag:parsed.chapter, genres:[], status:'', notes:'', fileName:file.name };
   await DB.putComic(meta);
   await DB.putFile(meta.id,file);
 }
@@ -2135,6 +2264,9 @@ async function openEditSeries(name){
     '<div class="cover-picker"><div class="cover-preview" id="s-cover-preview">'+(coverSrc?'<img src="'+coverSrc+'" alt="">':icon('image'))+'</div><div class="cover-picker-actions"><button type="button" id="s-cover-page">'+icon('book')+' Une page…</button><button type="button" id="s-cover-change">'+icon('image')+' Une image…</button><button type="button" id="s-cover-reset">'+icon('refresh')+' Auto</button></div></div>'+
     '<div class="form-group"><label>Nom</label><input type="text" id="s-name" value="'+escapeHTML(name)+'"></div>'+
     '<div class="form-group"><label>Auteur</label><input type="text" id="s-author" value="'+escapeHTML(meta.author||'')+'"></div>'+
+    '<div class="form-group"><label>Genres</label><input type="text" id="s-genres" value="'+escapeHTML((meta.genres||[]).join(', '))+'"><div class="form-hint">Séparez par des virgules.</div></div>'+
+    '<div class="form-group"><label>Statut</label><select id="s-status">'+Object.keys(STATUS_LABELS).map(k=>'<option value="'+k+'"'+((meta.status||'')===k?' selected':'')+'>'+STATUS_LABELS[k]+'</option>').join('')+'</select></div>'+
+    '<button type="button" class="btn-ghost" id="s-enrich" style="width:100%;margin-top:2px">'+icon('search')+' Enrichir depuis MangaDex…</button>'+
     '<div class="form-group"><label>Description</label><textarea id="s-desc">'+escapeHTML(meta.description||'')+'</textarea></div>'+
     '<div class="form-actions"><button type="button" class="btn-ghost" data-act="delete" style="color:var(--danger)">'+icon('trash')+' Dissoudre</button><button type="button" class="btn-primary" data-act="save">'+icon('check')+' Enregistrer</button></div>'+
   '</div></div>';
@@ -2162,6 +2294,7 @@ async function openEditSeries(name){
   });
   const close=()=>back.remove();
   back.addEventListener('click',e=>{ if(e.target===back)close(); });
+  back.querySelector('#s-enrich').addEventListener('click',()=>{ close(); openEnrichSheet(name,m=>applySeriesEnrich(name,m)); });
   back.querySelector('[data-act=delete]').addEventListener('click',()=>{
     close();
     showDialog('Dissoudre la série ?','Les tomes resteront dans votre bibliothèque mais ne seront plus groupés.',[
@@ -2179,6 +2312,8 @@ async function openEditSeries(name){
     const newName=back.querySelector('#s-name').value.trim();
     const author=back.querySelector('#s-author').value.trim();
     const description=back.querySelector('#s-desc').value;
+    const genres=back.querySelector('#s-genres').value.split(',').map(x=>x.trim()).filter(Boolean);
+    const status=back.querySelector('#s-status').value;
     if(!newName){ toast('Le nom est obligatoire'); return; }
     const oldKey=seriesKey(name), newKey=seriesKey(newName);
     if(oldKey!==newKey){
@@ -2187,11 +2322,128 @@ async function openEditSeries(name){
       await DB.deleteSeries(name);
     }
     const existingMeta=getSeriesMeta(name);
-    const serie={ name:newName, author, description, cover:(newCover==='__AUTO__')?'':(newCover||(existingMeta&&existingMeta.cover)||'') };
+    const serie=Object.assign({},existingMeta||{},{ name:newName, author:author, description:description, genres:genres, status:status, cover:(newCover==='__AUTO__')?'':(newCover||(existingMeta&&existingMeta.cover)||'') });
     await DB.putSeries(serie);
     comics=await DB.allComics(); seriesList=await DB.allSeries();
     close(); render(); renderSeries(); toast('Série enregistrée');
   });
+}
+
+/* ============ ENRICHISSEMENT EN LIGNE (MangaDex) ============ */
+const ENRICH={
+  async api(path){
+    if(MD.ready())return MD.api(path);
+    const r=await fetch('https://api.mangadex.org'+path,{headers:{'Accept':'application/json'}});
+    if(!r.ok)throw new Error('MangaDex : HTTP '+r.status);
+    return r.json();
+  },
+  statusKey(raw){ return raw==='completed'?'complete':(raw==='cancelled'?'abandoned':(raw==='released'?'complete':(raw||''))); },
+  async search(q){
+    const j=await ENRICH.api('/manga?title='+encodeURIComponent(q)+'&limit=12&includes[]=cover_art&includes[]=author&contentRating[]=safe&contentRating[]=suggestive&order[relevance]=desc');
+    return (j.data||[]).map(m=>{
+      const o=MD.mapManga(m);
+      const au=(m.relationships||[]).find(r=>r.type==='author');
+      o.author=(au&&au.attributes&&au.attributes.name)?au.attributes.name:'';
+      o.statusKey=ENRICH.statusKey((m.attributes||{}).status||'');
+      return o;
+    });
+  },
+  async coverToDataURL(url){
+    if(!url)return '';
+    if(MD.ready()){ try{ const b=await MD.blob(url); return await makeCover(b,420); }catch(e){} }
+    try{ const r=await fetch(url); if(!r.ok)throw new Error('HTTP'); const b=await r.blob(); return await makeCover(b,420); }catch(e){}
+    return '';
+  }
+};
+async function openEnrichSheet(query,onPick){
+  const back=document.createElement('div');
+  back.className='sheet-backdrop';
+  back.innerHTML='<div class="sheet"><div class="sheet-handle"></div><div class="sheet-header"><h3>Enrichir depuis MangaDex</h3></div><div class="sheet-form">'+
+    '<div class="form-group"><label>Rechercher une oeuvre</label><input type="text" id="enr-q" value="'+escapeHTML(query||'')+'"></div>'+
+    '<div id="enr-status" class="form-hint" style="padding:4px 0 8px"></div>'+
+    '<div id="enr-list" style="display:flex;flex-direction:column;gap:8px;padding-bottom:8px"></div>'+
+    '<div class="form-actions"><button type="button" class="btn-ghost" data-act="close">Fermer</button></div>'+
+    '</div></div>';
+  document.body.appendChild(back); hydrateIcons(back);
+  const listEl=back.querySelector('#enr-list'), statusEl=back.querySelector('#enr-status');
+  const close=()=>back.remove();
+  back.addEventListener('click',e=>{ if(e.target===back)close(); });
+  back.querySelector('[data-act=close]').addEventListener('click',close);
+  let busy=false;
+  const runSearch=async()=>{
+    const q=back.querySelector('#enr-q').value.trim();
+    if(!q||busy)return;
+    busy=true; statusEl.textContent='Recherche en cours…'; listEl.innerHTML='';
+    try{
+      const res=await ENRICH.search(q);
+      busy=false;
+      if(!res.length){ statusEl.textContent='Aucun résultat. Essayez un autre nom.'; return; }
+      statusEl.textContent='Touchez le bon résultat pour remplir les informations.';
+      listEl.innerHTML=res.map((m,i)=>'<button type="button" data-enr="'+i+'" style="display:flex;gap:10px;align-items:center;text-align:left;background:var(--surface,#141822);border:1px solid var(--border,#232a38);border-radius:12px;padding:8px;color:inherit">'+
+        '<span style="width:44px;height:62px;border-radius:6px;overflow:hidden;flex:none;background:#0b0d10">'+(m.cover?'<img src="'+mdCover(m)+'" style="width:100%;height:100%;object-fit:cover" loading="lazy" alt="">':'')+'</span>'+
+        '<span style="min-width:0"><span style="display:block;font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHTML(m.title)+'</span>'+
+        '<span style="display:block;color:var(--dim,#8f99a8);font-size:12px;margin-top:2px">'+escapeHTML((m.author||'Auteur inconnu')+(m.year?' · '+m.year:'')+(m.status?' · '+m.status:''))+'</span></span></button>').join('');
+      listEl.querySelectorAll('[data-enr]').forEach(btn=>btn.addEventListener('click',()=>{ const m=res[Number(btn.getAttribute('data-enr'))]; close(); onPick(m); }));
+    }catch(err){ busy=false; statusEl.textContent='Échec : '+(err&&err.message?err.message:String(err))+'. Vérifiez la connexion ou le proxy (menu ⋮ → Proxy en ligne…).'; }
+  };
+  back.querySelector('#enr-q').addEventListener('change',runSearch);
+  back.querySelector('#enr-q').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); runSearch(); } });
+  runSearch();
+}
+async function applySeriesEnrich(name,m){
+  if(!name||!m)return;
+  try{
+    const meta=getSeriesMeta(name)||{name:name,cover:''};
+    if(m.author&&!meta.author)meta.author=m.author;
+    if(m.description)meta.description=m.description;
+    meta.genres=(m.tags||[]).slice(0,8);
+    if(m.statusKey)meta.status=m.statusKey;
+    if(m.year)meta.year=String(m.year);
+    meta.mdId=m.id||'';
+    let coverStored=false;
+    if(m.cover){ const cover=await ENRICH.coverToDataURL(m.cover); if(cover){ meta.cover=cover; coverStored=true; } }
+    if(!coverStored&&m.cover)meta.cover=mdCover(m,420);
+    await DB.putSeries(meta);
+    const list=comicsOfSeries(name);
+    for(const c of list){
+      if(!c.author&&m.author)c.author=m.author;
+      if((!c.genres||!c.genres.length)&&(m.tags||[]).length)c.genres=(m.tags||[]).slice(0,8);
+      if(!c.status&&m.statusKey)c.status=m.statusKey;
+      await DB.putComic(c);
+    }
+    comics=await DB.allComics(); seriesList=await DB.allSeries();
+    render(); renderSeries();
+    toast('Informations enrichies pour la série');
+  }catch(err){ toast('Enrichissement impossible : '+(err&&err.message?err.message:String(err))); }
+}
+async function applyComicEnrich(id,m){
+  const c=comics.find(x=>x.id===id); if(!c||!m)return;
+  let name=getSeriesNameFromComic(c);
+  if(!name){ name=m.title; c.series=name; }
+  if(!c.author&&m.author)c.author=m.author;
+  if((!c.genres||!c.genres.length)&&(m.tags||[]).length)c.genres=(m.tags||[]).slice(0,8);
+  if(!c.status&&m.statusKey)c.status=m.statusKey;
+  await DB.putComic(c);
+  await applySeriesEnrich(name,m);
+}
+async function autoClassify(silent){
+  let count=0;
+  for(const c of comics){
+    if(getSeriesNameFromComic(c))continue;
+    const src=c.fileName||c.title||'';
+    const parsed=smartParse(src);
+    if(parsed.series){
+      c.series=parsed.series;
+      if(parsed.volume!=null)c.volume=parsed.volume;
+      if(parsed.chapter!=null)c.chapterTag=parsed.chapter;
+      if(parsed.title&&parsed.title!==c.title)c.title=parsed.title;
+      await DB.putComic(c);
+      count++;
+    }
+  }
+  comics=await DB.allComics(); seriesList=await DB.allSeries();
+  render(); renderSeries();
+  if(!silent)toast(count>0?count+' mangas classés en séries':'Rien de nouveau à classer');
 }
 
 /* ============ ACTIONS ============ */
@@ -2218,6 +2470,7 @@ function openContextMenu(id){
     { icon:'info', label:'Voir les détails', action:()=>openComicDetails(id) },
     { icon:isReading?'play':'book', label:isReading?'Reprendre la lecture':'Lire', action:()=>openComic(id) },
     { icon:'edit', label:'Modifier les informations', action:()=>openEditComic(id) },
+    { icon:'search', label:'Enrichir en ligne…', action:()=>openEnrichSheet(getSeriesNameFromComic(c)||c.title,m=>applyComicEnrich(id,m)) },
     { icon:'image', label:'Couverture : choisir une page', action:()=>openCoverPickerForComic(id) },
     { icon:'filter', label:'Sélectionner plusieurs', action:()=>enterSelection(id) },
     { icon:'star', label:c.favorite?'Retirer des favoris':'Ajouter aux favoris', action:()=>toggleFavorite(id) },
@@ -2231,6 +2484,7 @@ function openContextMenu(id){
 }
 function openSeriesContextMenu(name){
   showSheet(name,[
+    {icon:'search',label:'Enrichir depuis MangaDex…',action:()=>openEnrichSheet(name,m=>applySeriesEnrich(name,m))},
     {icon:'edit',label:'Modifier la série',action:()=>openEditSeries(name)},
     {icon:'image',label:'Couverture : choisir une page',action:()=>openSeriesCoverPicker(name,async dataURL=>{
       const meta=getSeriesMeta(name)||{name,cover:''};
@@ -2604,10 +2858,11 @@ function openMainMenu(){
     { icon:'chart', label:'Statistiques', action:showStats },
     { icon:'upload', label:'Exporter la progression', action:exportProgress },
     { icon:'downloadCloud', label:'Importer la progression', action:()=>$('#import-progress-input').click() },
+    { icon:'collection', label:'Classer automatiquement mes mangas', action:()=>autoClassify(false) },
     { icon:'globe', label:'Proxy en ligne…', action:openMangaDexSettings },
     { icon:'info', label:'Revoir le guide de lecture', action:()=>{ Store.set('konoha_tutorial_v2',''); showReaderTutorial(); } },
     { icon:'info', label:'À propos', action:()=>{
-      showInfoSheet('À propos','<div style="text-align:center;padding:10px 0 18px"><div style="font-size:52px;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 14px rgba(124,108,255,.4))">火</div><div style="font-size:19px;font-weight:800;margin-top:8px">Konoha</div><div style="color:var(--dim);font-size:12.5px;margin-top:4px">v2.1 · Lecteur de mangas CBZ</div></div><p style="color:var(--dim);font-size:13.5px;line-height:1.6;margin:0">Vos mangas restent sur votre appareil. Aucune donnée n\'est envoyée.</p>');
+      showInfoSheet('À propos','<div style="text-align:center;padding:10px 0 18px"><div style="font-size:52px;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 14px rgba(124,108,255,.4))">火</div><div style="font-size:19px;font-weight:800;margin-top:8px">Konoha</div><div style="color:var(--dim);font-size:12.5px;margin-top:4px">v2.2 · Lecteur de mangas CBZ</div></div><p style="color:var(--dim);font-size:13.5px;line-height:1.6;margin:0">Vos mangas restent sur votre appareil. Aucune donnée n\'est envoyée.</p>');
     }},
   ]);
 }
@@ -3177,54 +3432,184 @@ async function copyPageImage(i){
 }
 
 /* --- Tutorial --- */
+/* ============ TUTORIEL ANIME ============ */
+function tutPanelsSVG(){
+  return '<svg viewBox="0 0 118 168" xmlns="http://www.w3.org/2000/svg">'+
+  '<rect x="0" y="0" width="118" height="168" fill="#f5f2ea"/>'+
+  '<rect x="8" y="10" width="102" height="52" rx="2" fill="#e6e2d3" stroke="#b9b29c" stroke-width="1.5"/>'+
+  '<circle cx="36" cy="34" r="10" fill="#cbc3aa"/>'+
+  '<path d="M70 52 l12 -16 l12 22 l9 -9" stroke="#cbc3aa" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+  '<rect x="8" y="70" width="48" height="60" rx="2" fill="#e6e2d3" stroke="#b9b29c" stroke-width="1.5"/>'+
+  '<path d="M16 118 l12 -14 l10 12 l8 -9" stroke="#cbc3aa" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+  '<rect x="62" y="70" width="48" height="60" rx="2" fill="#e6e2d3" stroke="#b9b29c" stroke-width="1.5"/>'+
+  '<circle cx="86" cy="100" r="8" fill="#cbc3aa"/>'+
+  '<rect x="8" y="138" width="102" height="18" rx="2" fill="#e6e2d3" stroke="#b9b29c" stroke-width="1.5"/>'+
+  '<text x="59" y="151.5" text-anchor="middle" font-size="9" fill="#8d8570">12</text>'+
+  '</svg>';
+}
+function tutRippleAt(el,x,y){
+  const r=document.createElement('div');
+  r.className='tut-ripple'; r.style.left=x+'%'; r.style.top=y+'%';
+  el.appendChild(r);
+  setTimeout(function(){ if(r.parentNode)r.parentNode.removeChild(r); },750);
+}
+function tutFlipPage(p,dir){
+  const x=dir>0?-36:36;
+  p.style.transition='transform .26s ease-in,opacity .26s';
+  p.style.transform='translateX('+x+'px) rotateY('+(dir>0?-20:20)+'deg)';
+  p.style.opacity='0';
+  setTimeout(function(){
+    p.style.transition='none';
+    p.style.transform='translateX('+(dir>0?36:-36)+'px)';
+    setTimeout(function(){
+      p.style.transition='transform .3s ease-out,opacity .3s';
+      p.style.transform='translateX(0)';
+      p.style.opacity='1';
+    },30);
+  },270);
+}
+function tutBuildEdges(el,api){
+  el.innerHTML='<div class="tut-3d"><div class="tut-page">'+tutPanelsSVG()+'</div></div><div class="tut-edge l" data-d="-1"></div><div class="tut-edge r" data-d="1"></div><div class="tut-hand play" style="left:79%;top:56%;"></div>';
+  const page=el.querySelector('.tut-page');
+  el.querySelectorAll('.tut-edge').forEach(function(edge){
+    edge.addEventListener('click',function(e){
+      api.pause();
+      const r=el.getBoundingClientRect();
+      tutRippleAt(el,((e.clientX-r.left)/r.width)*100,((e.clientY-r.top)/r.height)*100);
+      tutFlipPage(page,Number(edge.getAttribute('data-d')));
+    });
+  });
+  const iv=setInterval(function(){ tutRippleAt(el,79,56); tutFlipPage(page,1); },2600);
+  return function(){ clearInterval(iv); };
+}
+function tutBuildSwipe(el,api){
+  el.innerHTML='<div class="tut-3d"><div class="tut-page">'+tutPanelsSVG()+'</div></div><div class="tut-hand swipe"></div>';
+  const p=el.querySelector('.tut-page');
+  let dragging=false,startX=0,cur=0;
+  el.addEventListener('pointerdown',function(e){ api.pause(); dragging=true; startX=e.clientX; cur=0; try{ el.setPointerCapture(e.pointerId); }catch(err){} });
+  el.addEventListener('pointermove',function(e){ if(!dragging)return; cur=e.clientX-startX; p.style.transition='none'; p.style.transform='translateX('+cur+'px) rotateY('+(cur*0.08)+'deg)'; });
+  const end=function(){ if(!dragging)return; dragging=false; p.style.transition='transform .3s cubic-bezier(.2,.8,.2,1)'; if(cur<-42)tutFlipPage(p,1); else if(cur>42)tutFlipPage(p,-1); else{ p.style.transform='translateX(0)'; } };
+  el.addEventListener('pointerup',end);
+  el.addEventListener('pointercancel',end);
+  return null;
+}
+function tutBuildRtl(el,api){
+  const cell=function(n){ return '<div class="tut-cell"><b>'+n+'</b><span class="tut-hl"></span></div>'; };
+  el.innerHTML='<div class="tut-grid">'+cell(2)+cell(1)+cell(4)+cell(3)+'</div>'+
+    '<div class="tut-note">De droite à gauche : case 1, puis 2, puis 3, puis 4.</div>';
+  const hls=el.querySelectorAll('.tut-hl');
+  const order=[1,0,3,2];
+  order.forEach(function(hlIdx,k){ hls[hlIdx].classList.add('s'); hls[hlIdx].style.animationDelay=(k*1.8)+'s'; });
+  el.addEventListener('pointerdown',function(){ api.pause(); });
+  return null;
+}
+function tutBuildCenter(el,api){
+  el.innerHTML='<div class="tut-3d"><div class="tut-page">'+tutPanelsSVG()+'</div></div>'+
+    '<div class="tut-bar top"><i></i><i></i><i></i></div><div class="tut-bar bot"><i></i><i></i><i></i></div>'+
+    '<div class="tut-hand play" style="left:50%;top:50%;"></div>';
+  let on=true,auto=true;
+  el.classList.add('bars');
+  const iv=setInterval(function(){ if(!auto)return; on=!on; el.classList.toggle('bars',on); },2400);
+  el.addEventListener('pointerdown',function(e){ api.pause(); auto=false; const r=el.getBoundingClientRect(); tutRippleAt(el,((e.clientX-r.left)/r.width)*100,((e.clientY-r.top)/r.height)*100); on=!on; el.classList.toggle('bars',on); });
+  return function(){ clearInterval(iv); };
+}
+function tutBuildZoom(el,api){
+  el.innerHTML='<div class="tut-3d"><div class="tut-page tut-zpage">'+tutPanelsSVG()+'</div></div>'+
+    '<div class="tut-finger p1"></div><div class="tut-finger p2"></div>';
+  el.classList.add('zauto');
+  let last=0;
+  el.addEventListener('pointerdown',function(e){ api.pause(); const now=Date.now(); if(now-last<330){ el.classList.remove('zauto'); el.classList.toggle('zoomed'); } last=now; });
+  return function(){ el.classList.remove('zauto'); el.classList.remove('zoomed'); };
+}
+function tutBuildMode(el,api){
+  let stripCells='';
+  for(let i=0;i<9;i++)stripCells+='<div class="tut-cellp"></div>';
+  el.innerHTML='<div class="tut-spread"><div class="tut-page">'+tutPanelsSVG()+'</div><div class="tut-page r">'+tutPanelsSVG()+'</div></div>'+
+    '<div class="tut-vwrap"><div class="tut-strip"><div class="roll">'+stripCells+'</div></div></div>'+
+    '<div class="tut-note" id="tut-ml">Mode page</div>';
+  let pageMode=true,auto=true;
+  const apply=function(){ el.classList.toggle('vmode',!pageMode); const ml=el.querySelector('#tut-ml'); if(ml)ml.textContent=pageMode?'Mode page':'Mode vertical'; };
+  apply();
+  const iv=setInterval(function(){ if(!auto)return; pageMode=!pageMode; apply(); },3400);
+  el.addEventListener('pointerdown',function(){ api.pause(); auto=false; pageMode=!pageMode; apply(); });
+  return function(){ clearInterval(iv); };
+}
+function tutBuildHold(el,api){
+  el.innerHTML='<div class="tut-3d"><div class="tut-page">'+tutPanelsSVG()+'</div></div>'+
+    '<div class="tut-ring"></div><div class="tut-hand hold" style="left:50%;top:50%;"></div>'+
+    '<div class="tut-menu"><div>'+icon('image')+' Utiliser comme couverture</div><div>'+icon('download')+' Enregistrer</div><div>'+icon('upload')+' Partager</div></div>';
+  el.classList.add('hauto');
+  const menu=el.querySelector('.tut-menu'),ring=el.querySelector('.tut-ring');
+  let t=null;
+  el.addEventListener('pointerdown',function(){ api.pause(); el.classList.remove('hauto'); ring.style.transition='transform .6s linear,opacity .15s'; ring.style.opacity='.9'; ring.style.transform='translate(-50%,-50%) scale(1)'; t=setTimeout(function(){ menu.classList.add('open'); },600); });
+  const up=function(){ clearTimeout(t); ring.style.opacity='0'; ring.style.transform='translate(-50%,-50%) scale(0)'; setTimeout(function(){ menu.classList.remove('open'); },40); };
+  el.addEventListener('pointerup',up);
+  el.addEventListener('pointercancel',up);
+  return function(){ el.classList.remove('hauto'); };
+}
+const TUT_STEPS=[
+  {title:'Toucher les bords',desc:'Touchez le bord droit pour la page suivante, le bord gauche pour revenir en arrière. Essayez sur la démo !',build:tutBuildEdges},
+  {title:'Balayer la page',desc:'Glissez horizontalement, comme tourner la page d\'un vrai livre. Essayez de glisser sur la démo !',build:tutBuildSwipe},
+  {title:'Le sens de lecture',desc:'Les mangas japonais se lisent de droite à gauche : commencez par la case 1 en haut à droite, puis 2, 3, 4.',build:tutBuildRtl},
+  {title:'Toucher le centre',desc:'Un appui au centre masque ou affiche les barres d\'outils pour une lecture immersive. Essayez !',build:tutBuildCenter},
+  {title:'Zoomer',desc:'Pincez à deux doigts ou double-tapez la page pour zoomer sur les détails. Essayez le double-tap !',build:tutBuildZoom},
+  {title:'Modes et réglages',desc:'Mode page ou défilement vertical : touchez la démo pour comparer, puis choisissez dans les réglages du lecteur.',build:tutBuildMode},
+  {title:'Maintenir une page',desc:'Un appui long ouvre un menu : couverture, enregistrement, partage… Essayez de maintenir !',build:tutBuildHold},
+  {title:'Vous êtes prêt !',desc:'Bonne lecture ! Vous pourrez revoir ce guide à tout moment depuis le menu ⋮.',final:true}
+];
 function showReaderTutorial(){
   if(document.querySelector('.tutorial-backdrop'))return;
+  const STEP_MS=8000;
   const back=document.createElement('div');
   back.className='tutorial-backdrop';
-  back.innerHTML=
-    '<div class="tutorial">'+
-      '<div class="tutorial-header">'+
-        '<h2>Guide de lecture</h2>'+
-        '<p>Voici comment naviguer dans vos mangas.</p>'+
-      '</div>'+
-      '<div class="tutorial-items">'+
-        '<div class="tutorial-item">'+
-          '<div class="tutorial-illust"><svg viewBox="0 0 100 70"><rect x="22" y="8" width="56" height="54" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 35 H18 M18 29 L12 35 L18 41" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M96 35 H82 M82 29 L88 35 L82 41" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+
-          '<div class="tutorial-text"><strong>Toucher les bords</strong><span>Touchez le bord gauche pour la page précédente, le bord droit pour la suivante.</span></div>'+
-        '</div>'+
-        '<div class="tutorial-item">'+
-          '<div class="tutorial-illust"><svg viewBox="0 0 100 70"><path d="M18 35 H82" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M72 25 L82 35 L72 45" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="45" cy="35" r="5" fill="currentColor" opacity=".5"/></svg></div>'+
-          '<div class="tutorial-text"><strong>Balayer</strong><span>Glissez horizontalement pour changer de page rapidement.</span></div>'+
-        '</div>'+
-        '<div class="tutorial-item">'+
-          '<div class="tutorial-illust"><svg viewBox="0 0 100 70"><rect x="22" y="8" width="56" height="54" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="50" cy="35" r="10" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="50" cy="35" r="4" fill="currentColor"/></svg></div>'+
-          '<div class="tutorial-text"><strong>Toucher le centre</strong><span>Masque ou affiche les barres d\'outils pour une lecture immersive.</span></div>'+
-        '</div>'+
-        '<div class="tutorial-item">'+
-          '<div class="tutorial-illust"><svg viewBox="0 0 100 70"><rect x="20" y="12" width="60" height="46" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M30 28 H70 M30 38 H70 M30 48 H55" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></div>'+
-          '<div class="tutorial-text"><strong>Réglages</strong><span>Choisissez le mode page ou vertical, le sens de lecture, et les zones de tapotement.</span></div>'+
-        '</div>'+
-        '<div class="tutorial-item">'+
-          '<div class="tutorial-illust"><svg viewBox="0 0 100 70"><rect x="12" y="8" width="52" height="54" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="66" cy="42" r="13" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M76 52 L86 62" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M61 37 v10 M56 42 h10" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div>'+
-          '<div class="tutorial-text"><strong>Zoomer</strong><span>Pincez à deux doigts ou double-tapez pour zoomer sur les détails, puis faites glisser pour déplacer.</span></div>'+
-        '</div>'+
-        '<div class="tutorial-item">'+
-          '<div class="tutorial-illust"><svg viewBox="0 0 100 70"><rect x="24" y="8" width="52" height="54" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="50" cy="35" r="6" fill="currentColor" opacity=".75"/><path d="M36 21 a20 20 0 0 0 0 28 M64 21 a20 20 0 0 1 0 28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div>'+
-          '<div class="tutorial-text"><strong>Maintenir une page</strong><span>Un appui long ouvre un menu : utiliser la page comme couverture, l\'enregistrer, la partager…</span></div>'+
-        '</div>'+
-      '</div>'+
-      '<div class="tutorial-footer">'+
-        '<label class="tutorial-check"><input type="checkbox" id="tutorial-dontshow"> Ne plus afficher</label>'+
-        '<button class="btn-primary" id="tutorial-ok" type="button">'+icon('check')+' C\'est parti</button>'+
-      '</div>'+
+  back.innerHTML='<div class="tutorial">'+
+    '<div class="tut-top"><span class="tut-count" id="tut-count"></span><button type="button" class="tut-skip" id="tut-skip">Passer</button></div>'+
+    '<div class="tut-progress"><i id="tut-bar"></i></div>'+
+    '<div class="tut-stage" id="tut-stage"></div>'+
+    '<h2 class="tut-title" id="tut-title"></h2>'+
+    '<p class="tut-desc" id="tut-desc"></p>'+
+    '<div class="tut-dots" id="tut-dots"></div>'+
+    '<div class="tut-actions" id="tut-actions"></div>'+
     '</div>';
   document.body.appendChild(back);
-  hydrateIcons(back);
-  back.querySelector('#tutorial-ok').addEventListener('click',()=>{
-    if(back.querySelector('#tutorial-dontshow').checked)Store.set('konoha_tutorial_v2','seen');
-    back.remove();
-  });
-  back.addEventListener('click',e=>{ if(e.target===back)back.remove(); });
+  const stageEl=back.querySelector('#tut-stage'),actsEl=back.querySelector('#tut-actions'),barEl=back.querySelector('#tut-bar');
+  let stepIdx=-1,timer=null,cleanup=null;
+  const closeAll=function(){ clearTimeout(timer); if(cleanup){cleanup();cleanup=null;} if(back.parentNode)back.parentNode.removeChild(back); };
+  const pause=function(){ clearTimeout(timer); const pw=barEl.parentNode.getBoundingClientRect().width||1; const w=Math.max(0,Math.min(100,(barEl.getBoundingClientRect().width/pw)*100)); barEl.style.transition='none'; barEl.style.width=w+'%'; };
+  function next(){ if(stepIdx<TUT_STEPS.length-1)go(stepIdx+1); }
+  function go(i){
+    stepIdx=i;
+    clearTimeout(timer);
+    if(cleanup){cleanup();cleanup=null;}
+    const s=TUT_STEPS[i];
+    back.querySelector('#tut-count').textContent=(i+1)+' / '+TUT_STEPS.length;
+    back.querySelector('#tut-title').textContent=s.title;
+    back.querySelector('#tut-desc').textContent=s.desc;
+    const dots=back.querySelector('#tut-dots');
+    dots.innerHTML=TUT_STEPS.map(function(_,k){ return '<button type="button" class="tut-dot'+(k===i?' on':'')+'" data-d="'+k+'"></button>'; }).join('');
+    dots.querySelectorAll('.tut-dot').forEach(function(d){ d.addEventListener('click',function(){ go(Number(d.getAttribute('data-d'))); }); });
+    stageEl.innerHTML='';
+    const live=document.createElement('div');
+    live.className='tut-live';
+    stageEl.appendChild(live);
+    if(s.final){
+      live.innerHTML='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:56px">������</div>';
+      actsEl.innerHTML='<label class="tut-check"><input type="checkbox" id="tut-dontshow"> Ne plus afficher au démarrage</label>'+
+        '<button type="button" class="btn-primary" id="tut-ok">'+icon('check')+' C\'est parti !</button>';
+      back.querySelector('#tut-ok').addEventListener('click',function(){ if(back.querySelector('#tut-dontshow').checked)Store.set('konoha_tutorial_v2','seen'); closeAll(); });
+      barEl.style.transition='none'; barEl.style.width='100%';
+      return;
+    }
+    cleanup=s.build(live,{pause:pause})||null;
+    actsEl.innerHTML='<button type="button" class="btn-primary" id="tut-next">Étape suivante '+icon('play')+'</button>';
+    back.querySelector('#tut-next').addEventListener('click',next);
+    barEl.style.transition='none'; barEl.style.width='0%'; void barEl.offsetWidth;
+    barEl.style.transition='width '+STEP_MS+'ms linear'; barEl.style.width='100%';
+    timer=setTimeout(next,STEP_MS);
+  }
+  back.addEventListener('click',function(e){ if(e.target===back)closeAll(); });
+  back.querySelector('#tut-skip').addEventListener('click',closeAll);
+  go(0);
 }
 
 /* ============ SHEETS / DIALOGS ============ */
