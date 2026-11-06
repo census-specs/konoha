@@ -207,6 +207,17 @@ input,select,textarea{font-family:inherit;}
 .browser-bottom button{flex:1;padding:11px;border-radius:11px;background:var(--surface2);color:var(--text);font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;}
 .browser-bottom button .icon{width:14px;height:14px;}
 .browser-bottom .primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+.as-sec-head{display:flex;align-items:center;gap:8px;margin:16px 16px 8px;font-size:11.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);}
+.as-sec-head .icon{width:14px;height:14px;color:var(--accent);flex-shrink:0;}
+.as-sec-head:first-child{margin-top:6px;}
+.as-lang-chips{display:flex;gap:8px;padding:12px 16px 4px;flex-wrap:wrap;flex-shrink:0;}
+.as-lang-chips button{padding:9px 16px;border-radius:999px;background:var(--surface2);color:var(--dim);font-size:12.5px;font-weight:700;border:1px solid transparent;transition:all .15s;}
+.as-lang-chips button.active{background:var(--surface);color:var(--text);border-color:var(--accent);}
+.as-lang-chips button:disabled{opacity:.45;}
+.av-ep-num{font-weight:750;font-size:13.5px;color:var(--accent);flex-shrink:0;min-width:86px;}
+.av-ep-t{flex:1;font-weight:600;font-size:14px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.url-bar .tvlock{flex-shrink:0;color:var(--accent);}
+.url-bar .tvlock .icon{width:12px;height:12px;}
 
 /* ==================== READER ==================== */
 #view-reader{background:#000;color:#fff;}
@@ -604,6 +615,33 @@ label.bulk-check input{accent-color:var(--accent);width:16px;height:16px;}
   </footer>
 </div>
 
+<div id="view-anime" class="view hidden">
+  <header class="browser-top">
+    <div class="browser-actions"><button class="bbtn" id="av-back"><span class="icon" data-icon="chevron-left"></span></button></div>
+    <div class="url-bar"><span class="tvlock"><span class="icon" data-icon="tv"></span></span><span class="host" id="av-host">—</span></div>
+    <div class="browser-actions">
+      <button class="bbtn" id="av-reload"><span class="icon" data-icon="refresh"></span></button>
+      <button class="bbtn" id="av-external"><span class="icon" data-icon="externalLink"></span></button>
+    </div>
+  </header>
+  <div class="browser-frame-wrap">
+    <div class="browser-loading hidden" id="av-loading"></div>
+    <iframe id="anime-frame" referrerpolicy="no-referrer" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation"></iframe>
+    <div class="browser-fallback hidden" id="av-fallback">
+      <span class="icon" data-icon="shield"></span>
+      <h3>Lecteur bloqué</h3>
+      <p id="av-fallback-text">Ce lecteur refuse l'affichage intégré.</p>
+      <button class="btn-primary" id="av-fallback-open"><span class="icon" data-icon="externalLink"></span> Ouvrir dans le navigateur</button>
+      <button class="btn-primary" id="av-fallback-next" style="background:var(--surface2);color:var(--text);box-shadow:none"><span class="icon" data-icon="refresh"></span> Lecteur suivant</button>
+    </div>
+  </div>
+  <footer class="browser-bottom">
+    <button id="av-prev"><span class="icon" data-icon="chevron-left"></span> Précédent</button>
+    <button id="av-players"><span class="icon" data-icon="play"></span> <span id="av-players-label">Lecteur</span></button>
+    <button class="primary" id="av-next"><span id="av-next-label">Suivant</span> <span class="icon" data-icon="chevron-right"></span></button>
+  </footer>
+</div>
+
 <div id="view-reader" class="view hidden">
   <div class="reader-stage">
     <div id="page-wrap"><img id="page-img" alt="" draggable="false"></div>
@@ -718,6 +756,7 @@ const ICONS = {
   user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2"/></svg>',
   horizontal:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 12h10"/></svg>',
   vertical:'<svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M12 8v8"/></svg>',
+  tv:'<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="m8 3 4 4 4-4"/></svg>',
 };
 function icon(name){ return '<span class="icon">' + (ICONS[name] || ICONS.info) + '</span>'; }
 function hydrateIcons(root){
@@ -1613,7 +1652,7 @@ let asList=[],asQuery='',asPage=0,asLoaded=false,asBusy=false,asTimer=null,asMor
 function renderAsCatalog(){
   const el=$('#as-catalog'); if(!el)return;
   if(!AS.ready()){
-    el.innerHTML='<div class="online-intro"><h3>'+icon('globe')+' Anime-Sama</h3><p>Parcourez les scans VF/VA d\'Anime-Sama : recherche par titre, sections, chapitres, lecture intégrée dans Konoha, téléchargement hors-ligne en CBZ. Utilise le même proxy personnel que MangaDex.</p><button class="btn-primary" id="as-setup-btn" type="button">'+icon('link')+' Configurer le proxy</button></div>';
+    el.innerHTML='<div class="online-intro"><h3>'+icon('globe')+' Anime-Sama</h3><p>Parcourez les scans et les animés d\'Anime-Sama : recherche par titre, saisons, chapitres et épisodes, lecture intégrée dans Konoha, téléchargement hors-ligne des chapitres en CBZ. Utilise le même proxy personnel que MangaDex.</p><button class="btn-primary" id="as-setup-btn" type="button">'+icon('link')+' Configurer le proxy</button></div>';
     hydrateIcons(el);
     return;
   }
@@ -1660,18 +1699,21 @@ async function openAniSamaDetail(card){
       '<div class="detail-cover">'+(card.img?'<img src="'+escapeHTML(card.img)+'" alt="">':'<div class="noimg">'+icon('book')+'</div>')+'</div>'+
       '<div class="detail-info">'+
         '<h2>'+escapeHTML(card.title)+'</h2>'+
-        '<div class="detail-sub">Anime-Sama · scans VF / VA</div>'+
+        '<div class="detail-sub">Anime-Sama · scans & animés</div>'+
       '</div>'+
     '</div>'+
+    '<div id="as-animes"></div>'+
     '<div class="md-chaps" id="as-secs"><div class="cpicker-empty"><div class="spinner"></div><div>Chargement des sections de scan…</div></div></div>'+
     '<div class="md-note">Contenu fourni par Anime-Sama · créditez les équipes de scantrad. Usage strictement personnel.</div>'+
   '</div>';
   document.body.appendChild(back);
   hydrateIcons(back);
   const close=()=>back.remove();
-  let secs=[];
+  let secs=[],avs=[];
   back.addEventListener('click',e=>{
     if(e.target===back){ close(); return; }
+    const avb=e.target.closest('[data-avi]');
+    if(avb){ const s=avs[Number(avb.dataset.avi)]; if(s)openAsSeason(card,s); return; }
     const sec=e.target.closest('[data-seci]');
     if(sec){ const s=secs[Number(sec.dataset.seci)]; if(s)openAsSection(card,s); }
   });
@@ -1680,6 +1722,13 @@ async function openAniSamaDetail(card){
     const html=await AS.text(card.url);
     const base=AS.dom().replace(/\/+$/,'')+'/'+String(card.url).replace(/^https?:\/\/[^/]+/,'').replace(/^\/+/,'').replace(/\/+$/,'');
     secs=asParseSections(html,base);
+    avs=asParseAnimeSeasons(html,base);
+    const aBox=back.querySelector('#as-animes');
+    if(avs.length){
+      aBox.innerHTML='<div class="as-sec-head">'+icon('tv')+' Saisons animées</div>'+
+        avs.map((s,i)=>'<button class="md-chap" data-avi="'+i+'" type="button"><span class="t" style="flex:1;font-weight:650;color:var(--text)">'+escapeHTML(s.title)+'</span><span class="p">'+s.langs.map(l=>l.toUpperCase()).join(' · ')+'</span><span class="p">'+icon('chevron-right')+'</span></button>').join('');
+      hydrateIcons(aBox);
+    }
     const sm=html.match(/synopsis[^>]*>([\s\S]*?)<\/div>/);
     const syn=sm?AS.decode(sm[1]):'';
     if(syn.length>40){
@@ -1688,7 +1737,14 @@ async function openAniSamaDetail(card){
       d.textContent=syn;
       box.parentNode.insertBefore(d,box);
     }
+    if(avs.length&&secs.length){
+      const h=document.createElement('div');
+      h.className='as-sec-head';
+      h.innerHTML=icon('book')+' Scans';
+      box.parentNode.insertBefore(h,box);
+    }
     if(!secs.length){
+      if(avs.length){ box.innerHTML='<div class="cpicker-empty"><div>Pas de scans pour cette œuvre, mais les saisons animées sont listées ci-dessus.</div></div>'; return; }
       box.innerHTML='<div class="cpicker-empty"><div>Aucune section de scan trouvée (œuvre sans scans ?). Si le domaine du site a changé, mettez-le à jour via le menu ⋮ → Proxy en ligne…</div></div>';
       return;
     }
@@ -1773,6 +1829,181 @@ function openBrowser(url){
 }
 function showBrowserFallback(msg){ $('#br-fallback-text').textContent=msg; $('#br-fallback').classList.remove('hidden'); $('#browser-frame').classList.add('hidden'); }
 function closeBrowser(){ clearTimeout(browser.timeout); $('#browser-frame').src='about:blank'; browser.currentURL=''; showView('library'); }
+
+/* ============ ANIMES (Anime-Sama streaming) ============ */
+let asWatched=(function(){ try{ return JSON.parse(Store.get('mr_asWatched','{}'))||{}; }catch(e){ return {}; } })();
+function asWatchSave(){ Store.set('mr_asWatched',JSON.stringify(asWatched)); }
+function asParseAnimeSeasons(html,baseUrl){
+  const map=new Map(),out=[];
+  const re=/panneauAnime\(\s*(['"])([\s\S]*?)\1\s*,\s*(['"])([\s\S]*?)\3\s*\)/g;
+  let m;
+  while((m=re.exec(html))){
+    const t=AS.decode(m[2]);
+    const raw=String(m[4]||'').trim();
+    if(!t||!raw)continue;
+    const lm=raw.match(/(vostfr|vf|va)$/i);
+    const lang=lm?lm[1].toLowerCase():'';
+    let folder=lang?raw.slice(0,raw.length-lang.length):raw;
+    folder=folder.replace(/\/+$/,'');
+    if(!folder)continue;
+    const key=folder.toLowerCase();
+    if(!map.has(key))map.set(key,{ title:t, folder:folder, langs:new Set() });
+    if(lang)map.get(key).langs.add(lang);
+  }
+  map.forEach(e=>{
+    e.langs=[...e.langs.keys()];
+    if(!e.langs.length)e.langs=['vostfr','vf'];
+    e.url=baseUrl.replace(/\/+$/,'')+'/'+e.folder+'/';
+    out.push(e);
+  });
+  return out;
+}
+function asParseEpisodesJs(src){
+  const players={};let max=0;
+  const re=/\beps(\d+)\s*=\s*\[([\s\S]*?)\]/g;
+  let m;
+  while((m=re.exec(src))){
+    const n=Number(m[1]);
+    if(!n||players[n])continue;
+    const urls=[];
+    const are=/['"]([^'"]+)['"]/g;let a;
+    while((a=are.exec(m[2])))urls.push(a[1].trim());
+    const fixed=urls.map(u=>u.replace(/vidmoly\.to\//ig,'vidmoly.net/')).filter(u=>/^https?:\/\//i.test(u));
+    if(fixed.length>=2){ const t=fixed[0];fixed[0]=fixed[1];fixed[1]=t; }
+    if(fixed.length){ players[n]=fixed; if(n>max)max=n; }
+  }
+  return { players:players, max:max };
+}
+async function openAsSeason(card,season){
+  const back=document.createElement('div');
+  back.className='sheet-backdrop';
+  back.innerHTML='<div class="detail">'+
+    '<div class="sheet-handle"></div>'+
+    '<div class="detail-hero"><div class="detail-info"><h2>'+escapeHTML(card.title)+'</h2><div class="detail-sub">'+escapeHTML(season.title)+' · animés</div></div></div>'+
+    '<div class="as-lang-chips" id="av-langs"></div>'+
+    '<div class="md-chaps" id="av-eps"><div class="cpicker-empty"><div class="spinner"></div><div>Chargement des épisodes…</div></div></div>'+
+    '<div class="md-note">Épisodes en streaming fournis par Anime-Sama et lus depuis leurs lecteurs partenaires (Sibnet, Vidmoly…). Si un lecteur ne démarre pas, changez de lecteur ou ouvrez l\'épisode dans le navigateur.</div>'+
+  '</div>';
+  document.body.appendChild(back);
+  hydrateIcons(back);
+  const close=()=>back.remove();
+  back.addEventListener('click',e=>{
+    if(e.target===back){ close(); return; }
+    const chip=e.target.closest('[data-avlang]');
+    if(chip){ state.lang=chip.dataset.avlang; loadLang(); return; }
+    const b=e.target.closest('[data-avep]');
+    if(b){ close(); openAsEpisode(state,Number(b.dataset.avep)); }
+  });
+  const langBox=back.querySelector('#av-langs'),epsBox=back.querySelector('#av-eps');
+  const state={ lang:season.langs[0], eps:[], pre:'', title:card.title+' · '+season.title };
+  async function loadLang(){
+    langBox.innerHTML=season.langs.map(l=>'<button type="button" class="'+(l===state.lang?'active':'')+'" data-avlang="'+l+'">'+l.toUpperCase()+'</button>').join('');
+    epsBox.innerHTML='<div class="cpicker-empty"><div class="spinner"></div><div>Chargement des épisodes…</div></div>';
+    try{
+      const langUrl=season.url+state.lang+'/';
+      const html=await AS.text(langUrl);
+      const jm=html.match(/episodes\.js\?filever=\d+/);
+      if(!jm)throw new Error('Aucun épisode disponible pour cette langue');
+      const js=await AS.text(langUrl+jm[0]);
+      const parsed=asParseEpisodesJs(js);
+      const eps=[];
+      for(let n=1;n<=parsed.max;n++){ if(parsed.players[n])eps.push({ n:n, players:parsed.players[n] }); }
+      if(!eps.length)throw new Error('Aucun lecteur trouvé');
+      state.eps=eps;
+      state.pre=langUrl+'|';
+      renderEps();
+    }catch(err){
+      epsBox.innerHTML='<div class="cpicker-empty"><div>'+escapeHTML(err.message||'Erreur de chargement')+'</div></div>';
+    }
+  }
+  function renderEps(){
+    let firstUnseen=-1;
+    for(let i=0;i<state.eps.length;i++){ if(!asWatched[state.pre+state.eps[i].n]){ firstUnseen=i; break; } }
+    let html='';
+    if(firstUnseen>0)html+='<button class="md-more" data-avep="'+firstUnseen+'" type="button">'+icon('play')+' Reprendre · Épisode '+state.eps[firstUnseen].n+'</button>';
+    html+=state.eps.map((ep,i)=>{
+      const seen=!!asWatched[state.pre+ep.n];
+      return '<button class="md-chap" data-avep="'+i+'" type="button">'+
+        '<span class="av-ep-num">Ép. '+ep.n+'</span>'+
+        '<span class="av-ep-t"></span>'+
+        (seen?'<span class="have">'+icon('check')+'</span>':'')+
+        '<span class="p">'+icon('play')+' '+ep.players.length+'</span>'+
+      '</button>';
+    }).join('');
+    epsBox.innerHTML=html;
+    hydrateIcons(epsBox);
+  }
+  loadLang();
+}
+const AV={ ctx:null, timeout:null };
+function openAsEpisode(list,i){
+  AV.ctx={ list:list, i:Math.max(0,Math.min(i,list.eps.length-1)), pi:0 };
+  showView('anime');
+  avLoad();
+}
+function avCurrent(){
+  const c=AV.ctx;
+  if(!c)return null;
+  const ep=c.list.eps[c.i];
+  if(!ep)return null;
+  return { c:c, ep:ep, url:ep.players[c.pi]||ep.players[0] };
+}
+function avLoad(){
+  const cur=avCurrent();
+  if(!cur){ closeAnime(); return; }
+  const c=cur.c,ep=cur.ep;
+  const frame=$('#anime-frame'),loading=$('#av-loading'),fall=$('#av-fallback');
+  $('#av-host').textContent=c.list.title+' — Épisode '+ep.n;
+  loading.classList.remove('hidden');
+  fall.classList.add('hidden');
+  clearTimeout(AV.timeout);
+  frame.onload=()=>{ clearTimeout(AV.timeout); loading.classList.add('hidden'); };
+  frame.onerror=()=>{ clearTimeout(AV.timeout); loading.classList.add('hidden'); };
+  AV.timeout=setTimeout(()=>{ loading.classList.add('hidden'); },9000);
+  frame.src=cur.url;
+  asWatched[c.list.pre+ep.n]=1;
+  asWatchSave();
+  $('#av-prev').disabled=c.i<=0;
+  $('#av-next').disabled=c.i>=c.list.eps.length-1;
+  const nb=ep.players.length;
+  $('#av-players').disabled=nb<2;
+  $('#av-players-label').textContent='Lecteur '+(c.pi+1)+'/'+nb;
+  $('#av-fallback-next').style.display=nb>1?'inline-flex':'none';
+}
+function avGo(d){
+  const c=AV.ctx;
+  if(!c)return;
+  const ni=c.i+d;
+  if(ni<0||ni>=c.list.eps.length)return;
+  c.i=ni;c.pi=0;
+  avLoad();
+}
+function avCyclePlayer(){
+  const c=AV.ctx;
+  if(!c)return;
+  const ep=c.list.eps[c.i];
+  if(!ep||ep.players.length<2)return;
+  c.pi=(c.pi+1)%ep.players.length;
+  avLoad();
+}
+function closeAnime(){
+  clearTimeout(AV.timeout);
+  AV.timeout=null;
+  const frame=$('#anime-frame');
+  if(frame)frame.src='about:blank';
+  AV.ctx=null;
+  showView('library');
+}
+(function avWire(){
+  const b=$('#av-back'); if(b)b.addEventListener('click',closeAnime);
+  const r=$('#av-reload'); if(r)r.addEventListener('click',()=>{ if(AV.ctx)avLoad(); });
+  const ex=$('#av-external'); if(ex)ex.addEventListener('click',()=>{ const cur=avCurrent(); if(cur)window.open(cur.url,'_blank','noopener,noreferrer'); });
+  const pr=$('#av-prev'); if(pr)pr.addEventListener('click',()=>avGo(-1));
+  const nx=$('#av-next'); if(nx)nx.addEventListener('click',()=>avGo(1));
+  const pl=$('#av-players'); if(pl)pl.addEventListener('click',avCyclePlayer);
+  const fo=$('#av-fallback-open'); if(fo)fo.addEventListener('click',()=>{ const cur=avCurrent(); if(cur)window.open(cur.url,'_blank','noopener,noreferrer'); });
+  const fn=$('#av-fallback-next'); if(fn)fn.addEventListener('click',avCyclePlayer);
+})();
 
 /* ============ IMPORT URL ============ */
 async function importFromURL(){
@@ -2862,7 +3093,7 @@ function openMainMenu(){
     { icon:'globe', label:'Proxy en ligne…', action:openMangaDexSettings },
     { icon:'info', label:'Revoir le guide de lecture', action:()=>{ Store.set('konoha_tutorial_v2',''); showReaderTutorial(); } },
     { icon:'info', label:'À propos', action:()=>{
-      showInfoSheet('À propos','<div style="text-align:center;padding:10px 0 18px"><div style="font-size:52px;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 14px rgba(124,108,255,.4))">火</div><div style="font-size:19px;font-weight:800;margin-top:8px">Konoha</div><div style="color:var(--dim);font-size:12.5px;margin-top:4px">v2.2 · Lecteur de mangas CBZ</div></div><p style="color:var(--dim);font-size:13.5px;line-height:1.6;margin:0">Vos mangas restent sur votre appareil. Aucune donnée n\'est envoyée.</p>');
+      showInfoSheet('À propos','<div style="text-align:center;padding:10px 0 18px"><div style="font-size:52px;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 14px rgba(124,108,255,.4))">火</div><div style="font-size:19px;font-weight:800;margin-top:8px">Konoha</div><div style="color:var(--dim);font-size:12.5px;margin-top:4px">v2.3 · Mangas & animés</div></div><p style="color:var(--dim);font-size:13.5px;line-height:1.6;margin:0">Vos mangas restent sur votre appareil. Aucune donnée n\'est envoyée.</p>');
     }},
   ]);
 }
@@ -3593,7 +3824,7 @@ function showReaderTutorial(){
     live.className='tut-live';
     stageEl.appendChild(live);
     if(s.final){
-      live.innerHTML='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:56px">������</div>';
+      live.innerHTML='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:56px">🍜</div>';
       actsEl.innerHTML='<label class="tut-check"><input type="checkbox" id="tut-dontshow"> Ne plus afficher au démarrage</label>'+
         '<button type="button" class="btn-primary" id="tut-ok">'+icon('check')+' C\'est parti !</button>';
       back.querySelector('#tut-ok').addEventListener('click',function(){ if(back.querySelector('#tut-dontshow').checked)Store.set('konoha_tutorial_v2','seen'); closeAll(); });
@@ -3662,6 +3893,7 @@ function showDialog(title,message,buttons){
 function showView(name){
   $('#view-library').classList.toggle('hidden',name!=='library');
   $('#view-browser').classList.toggle('hidden',name!=='browser');
+  $('#view-anime').classList.toggle('hidden',name!=='anime');
   $('#view-reader').classList.toggle('hidden',name!=='reader');
 }
 function switchTab(tab){
