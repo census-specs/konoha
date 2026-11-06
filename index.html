@@ -218,6 +218,19 @@ input,select,textarea{font-family:inherit;}
 .av-ep-t{flex:1;font-weight:600;font-size:14px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .url-bar .tvlock{flex-shrink:0;color:var(--accent);}
 .url-bar .tvlock .icon{width:12px;height:12px;}
+.src-tabs{display:flex;gap:8px;padding:2px 0 14px;flex-shrink:0;}
+.src-tab{flex:1;padding:12px 8px;border-radius:13px;background:var(--surface2);color:var(--dim);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid transparent;transition:all .15s;font-family:inherit;}
+.src-tab .icon{width:15px;height:15px;}
+.src-tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 14px rgba(124,108,255,.35);}
+.diag-list{padding:4px 16px 8px;max-height:52vh;overflow-y:auto;}
+.diag-row{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border);}
+.diag-row:last-child{border-bottom:none;}
+.diag-ico{flex-shrink:0;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;}
+.diag-ico .icon{width:13px;height:13px;}
+.diag-ico.ok{background:rgba(74,217,145,.16);color:var(--success);}
+.diag-ico.bad{background:rgba(245,84,112,.16);color:var(--danger);}
+.diag-txt{font-size:13px;line-height:1.5;color:var(--text);word-break:break-word;}
+.diag-row .diag-txt{color:var(--dim);font-size:12.5px;}
 
 /* ==================== READER ==================== */
 #view-reader{background:#000;color:#fff;}
@@ -572,18 +585,29 @@ label.bulk-check input{accent-color:var(--accent);width:16px;height:16px;}
     <div id="series-empty" class="empty hidden"></div>
   </main>
   <main id="online-content" class="hidden">
-    <div class="online-intro"><h3><span class="icon" data-icon="shield"></span> Sources légales & gratuites</h3><p>Konoha ouvre les sources dans une visionneuse intégrée.</p></div>
-    <div class="url-import">
-      <label>Importer depuis une URL</label>
-      <div class="url-input-wrap">
-        <input type="url" id="url-input" placeholder="https://exemple.com/manga.cbz" autocomplete="off">
-        <button id="url-btn" type="button"><span class="icon" data-icon="download"></span> Charger</button>
-      </div>
-      <div class="url-hint">Lien direct vers un fichier .cbz / .cbr / .pdf / .epub hébergé légalement.</div>
+    <div class="src-tabs" id="src-tabs">
+      <button class="src-tab active" data-src="md" type="button"><span class="icon" data-icon="mdx"></span> MangaDex</button>
+      <button class="src-tab" data-src="as" type="button"><span class="icon" data-icon="tv"></span> Anime-Sama</button>
+      <button class="src-tab" data-src="other" type="button"><span class="icon" data-icon="catalog"></span> Autres</button>
     </div>
-    <div class="section"><div class="section-head"><h2 class="section-title">Catalogue MangaDex</h2></div><div id="md-catalog"></div></div>
-    <div class="section"><div class="section-head"><h2 class="section-title">Catalogue Anime-Sama</h2></div><div id="as-catalog"></div></div>
-    <div class="section"><div class="section-head"><h2 class="section-title">Bibliothèques & catalogue</h2></div><div class="sources-list" id="sources-list"></div></div>
+    <div id="src-md">
+      <div class="section"><div class="section-head"><h2 class="section-title">Catalogue MangaDex</h2></div><div id="md-catalog"></div></div>
+    </div>
+    <div id="src-as" class="hidden">
+      <div class="section"><div class="section-head"><h2 class="section-title">Catalogue Anime-Sama · scans & animés</h2></div><div id="as-catalog"></div></div>
+    </div>
+    <div id="src-other" class="hidden">
+      <div class="online-intro"><h3><span class="icon" data-icon="shield"></span> Sources légales & gratuites</h3><p>Konoha ouvre les sources dans une visionneuse intégrée.</p></div>
+      <div class="url-import">
+        <label>Importer depuis une URL</label>
+        <div class="url-input-wrap">
+          <input type="url" id="url-input" placeholder="https://exemple.com/manga.cbz" autocomplete="off">
+          <button id="url-btn" type="button"><span class="icon" data-icon="download"></span> Charger</button>
+        </div>
+        <div class="url-hint">Lien direct vers un fichier .cbz / .cbr / .pdf / .epub hébergé légalement.</div>
+      </div>
+      <div class="section"><div class="section-head"><h2 class="section-title">Bibliothèques & catalogue</h2></div><div class="sources-list" id="sources-list"></div></div>
+    </div>
   </main>
   <input type="file" id="file-input" accept=".cbz,.cbr,.zip,.pdf,.epub,application/zip,application/pdf,application/epub+zip" multiple hidden>
   <input type="file" id="import-progress-input" accept=".json,application/json" hidden>
@@ -1305,9 +1329,11 @@ const MD={
     return list;
   },
   async pages(chapterId){
-    const j=await MD.api('/at-home/server/'+chapterId);
+    const j=await MD.api('/at-home/server/'+chapterId+'?forcePort443=true');
     const base=j.baseUrl||'', ch=j.chapter||{};
-    return (ch.data||[]).map(f=>base+'/data/'+ch.hash+'/'+f);
+    if((ch.data||[]).length)return ch.data.map(f=>base+'/data/'+ch.hash+'/'+f);
+    if((ch.dataSaver||[]).length)return ch.dataSaver.map(f=>base+'/data-saver/'+ch.hash+'/'+f);
+    return [];
   }
 };
 function mdCover(m,size){ return m.cover?(m.cover+'.'+(size||256)+'.jpg'):''; }
@@ -1459,13 +1485,14 @@ async function openOnlineComic(c){
   try{
     let urls;
     if(c.online.as){
-      const base=c.online.as.bookName?(AS.dom()+'/s2/scans/'+encodeURIComponent(c.online.as.bookName)+'/'+c.online.as.chapter+'/'):(c.online.as.imgBase||'');
-      urls=await asPages(base);
+      urls=await asChapterUrls(c);
     }else{
       if(!MD.ready())throw new Error('Proxy MangaDex non configuré');
       urls=await MD.pages(c.online.chapterId);
     }
-    if(!urls.length)throw new Error('Chapitre indisponible');
+    if(!urls.length)throw new Error(c.online.as
+      ?'Chapitre introuvable sur Anime-Sama · lancez « Test de connexion » (menu ⋮)'
+      :'Aucune page trouvée sur MangaDex (chapitre licencié, retiré ou pas encore publié ?)');
     reader.urls.clear();
     reader.online=urls;
     reader.pages=urls.map(()=>true);
@@ -1498,11 +1525,12 @@ async function downloadOnlineChapter(c){
     toast('Téléchargement en cours…');
     let urls;
     if(c.online.as){
-      const base=c.online.as.bookName?(AS.dom()+'/s2/scans/'+encodeURIComponent(c.online.as.bookName)+'/'+c.online.as.chapter+'/'):(c.online.as.imgBase||'');
-      urls=await asPages(base);
+      urls=await asChapterUrls(c);
     }
     else urls=await MD.pages(c.online.chapterId);
-    if(!urls.length)throw new Error('Chapitre indisponible');
+    if(!urls.length)throw new Error(c.online.as
+      ?'Chapitre introuvable sur Anime-Sama (pages absentes côté site)'
+      :'Aucune page trouvée sur MangaDex (chapitre licencié ou retiré ?)');
     const entries=[];
     for(let i=0;i<urls.length;i++){
       const blob=await MD.blob(urls[i]);
@@ -1630,7 +1658,7 @@ function asImgOk(url){
     im.onerror=()=>finish(null);
     im.referrerPolicy='no-referrer';
     setTimeout(()=>finish(null),20000);
-    im.src=url;
+    im.src=MD.ready()?(MD.base()+'/img?u='+encodeURIComponent(url)):url;
   });
 }
 async function asPages(base){
@@ -1647,6 +1675,18 @@ async function asPages(base){
   }
   found.sort((a,b)=>a.n-b.n);
   return found.map(x=>x.u);
+}
+async function asChapterUrls(c){
+  const ch=c.online.as||{};
+  const base=ch.bookName?(AS.dom()+'/s2/scans/'+encodeURIComponent(ch.bookName)+'/'+ch.chapter+'/'):(ch.imgBase||'');
+  if(ch.bookName){
+    try{
+      const j=JSON.parse(await AS.text('/s2/scans/get_nb_chap_et_img.php?oeuvre='+encodeURIComponent(ch.bookName)));
+      const n=Number(j&&j[String(ch.chapter)]);
+      if(n>0&&n<=500){ const out=[]; for(let i=1;i<=n;i++)out.push(base+i+'.jpg'); return out; }
+    }catch(e){}
+  }
+  return asPages(base);
 }
 let asList=[],asQuery='',asPage=0,asLoaded=false,asBusy=false,asTimer=null,asMore=false;
 function renderAsCatalog(){
@@ -1773,10 +1813,18 @@ async function openAsSection(card,sec){
     try{
       const html=await AS.text(cu);
       const bn=asParseBookName(html,card.title);
-      let chs=asParseChapters(html);
-      if(!chs.length)chs=await asApiChapters(bn);
+      let chs=[];
+      const candNames=[];[bn,card.title,sec.title].forEach(v=>{ if(v&&candNames.indexOf(v)<0)candNames.push(v); });
+      for(const cand of candNames){
+        chs=await asApiChapters(cand);
+        if(chs.length){ bookName=cand; break; }
+      }
+      if(!chs.length){
+        chs=asParseChapters(html);
+        if(chs.length)bookName=bn;
+      }
       if(!chs.length)chs=asParseListeJs(html);
-      if(chs.length){ bookName=bn; chapters=chs; ok=true; break; }
+      if(chs.length){ if(!bookName)bookName=bn; chapters=chs; ok=true; break; }
     }catch(e){}
   }
   if(!ok){
@@ -1784,7 +1832,11 @@ async function openAsSection(card,sec){
     return;
   }
   box.innerHTML=chapters.map(n=>{
-    const have=comics.some(x=>seriesKey(getSeriesNameFromComic(x))===seriesKey(sec.title)&&x.title===sec.title+' — Chapitre '+n);
+    const have=comics.some(x=>{
+      if(x.online&&x.online.as&&x.online.as.bookName===bookName&&String(x.online.as.chapter)===String(n))return true;
+      const sk=seriesKey(getSeriesNameFromComic(x));
+      return (sk===seriesKey(bookName)||sk===seriesKey(sec.title))&&x.title===sec.title+' — Chapitre '+n;
+    });
     return '<button class="md-chap" data-asn="'+escapeHTML(n)+'" type="button">'+
       '<span class="num">Ch. '+escapeHTML(n)+'</span>'+
       '<span class="t"></span>'+
@@ -1801,17 +1853,120 @@ async function readAsChapter(card,sec,bookName,n){
   try{
     const imgBase=AS.dom()+'/s2/scans/'+encodeURIComponent(bookName)+'/'+n+'/';
     const wanted=sec.title+' — Chapitre '+n;
-    let local=comics.find(x=>!x.online&&x.series&&seriesKey(x.series)===seriesKey(sec.title)&&x.title===wanted);
+    let local=comics.find(x=>!x.online&&x.series&&x.title===wanted&&(seriesKey(x.series)===seriesKey(bookName)||seriesKey(x.series)===seriesKey(sec.title)));
     if(local){ openComic(local.id); return; }
     let c=comics.find(x=>x.online&&x.online.as&&String(x.online.as.chapter)===String(n)&&x.online.as.bookName===bookName);
     if(!c){
-      c={ id:uid(), title:wanted, cover:card.img||'', pageCount:0, currentPage:0, addedAt:Date.now(), lastReadAt:0, finished:false, favorite:false, series:sec.title, author:'', volume:null, genres:[], status:'', notes:'', online:{ as:{ bookName:bookName, chapter:n, imgBase:imgBase } } };
+      c={ id:uid(), title:wanted, cover:card.img||'', pageCount:0, currentPage:0, addedAt:Date.now(), lastReadAt:0, finished:false, favorite:false, series:bookName, author:'', volume:null, genres:[], status:'', notes:'', online:{ as:{ bookName:bookName, chapter:n, imgBase:imgBase } } };
       await DB.putComic(c);
       comics.push(c);
       renderSeries();
     }
     openOnlineComic(c);
   }catch(err){ console.error(err); toast('Impossible d\'ouvrir ce chapitre (Anime-Sama)'); }
+}
+
+/* ============ DIAGNOSTIC EN LIGNE ============ */
+async function runDiag(){
+  const back=document.createElement('div');
+  back.className='sheet-backdrop';
+  back.innerHTML='<div class="sheet">'+
+    '<div class="sheet-handle"></div>'+
+    '<div class="sheet-header"><h3>'+icon('shield')+' Test de connexion</h3></div>'+
+    '<div class="diag-list" id="diag-list"><div class="cpicker-empty"><div class="spinner"></div><div>Analyse en cours…</div></div></div>'+
+    '<div class="md-note">Chaque étape est testée dans l\'ordre : proxy, MangaDex, Anime-Sama, puis lecture réelle d\'une image. Si une ligne affiche une croix rouge, notez son message exact et transmettez-le à votre assistant : il saura exactement quoi corriger.</div>'+
+  '</div>';
+  document.body.appendChild(back);
+  hydrateIcons(back);
+  back.addEventListener('click',e=>{ if(e.target===back)back.remove(); });
+  const list=back.querySelector('#diag-list');
+  const rows=[];
+  const add=(ok,msg)=>{
+    rows.push('<div class="diag-row"><span class="diag-ico '+(ok?'ok':'bad')+'">'+icon(ok?'check':'close')+'</span><span class="diag-txt">'+escapeHTML(msg)+'</span></div>');
+    list.innerHTML=rows.join('');
+    hydrateIcons(list);
+  };
+  if(!MD.ready()){
+    add(false,'Aucun proxy configuré. Ouvrez le menu ⋮ → « Proxy en ligne… » pour renseigner l\'URL de votre Worker Cloudflare.');
+    return;
+  }
+  try{
+    const r=await fetch(MD.base());
+    add(r.ok,'Proxy joignable ('+MD.base()+')');
+    if(!r.ok)return;
+  }catch(e){
+    add(false,'Proxy injoignable ('+MD.base()+'). Vérifiez l\'URL dans ⋮ → « Proxy en ligne… » et votre connexion internet.');
+    return;
+  }
+  let mdOk=false;
+  try{
+    const j=await MD.api('/manga?limit=1');
+    mdOk=(j&&j.result==='ok');
+    add(mdOk,'MangaDex : catalogue accessible');
+  }catch(e){ add(false,'MangaDex : '+(e.message||'API injoignable')); }
+  if(mdOk){
+    try{
+      let testChap=null;
+      const j=await MD.api('/manga?order[followedCount]=desc&limit=8&contentRating[]=safe&contentRating[]=suggestive');
+      for(const m of (j.data||[])){
+        try{
+          const f=await MD.api('/manga/'+m.id+'/feed?translatedLanguage[]=fr&translatedLanguage[]=en&limit=100&order[chapter]=asc&contentRating[]=safe&contentRating[]=suggestive');
+          const ch=(f.data||[]).find(c=>c.attributes&&!c.attributes.externalUrl);
+          if(ch){ testChap=ch; break; }
+        }catch(e){}
+      }
+      if(!testChap){ add(false,'MangaDex : aucun chapitre testable trouvé (réseau instable ?)'); }
+      else{
+        const urls=await MD.pages(testChap.id);
+        if(!urls.length){ add(false,'MangaDex : le serveur de pages ne renvoie aucune image pour ce chapitre. Essayez un autre titre.'); }
+        else{
+          const b=await MD.blob(urls[0]);
+          add(b&&b.size>1000,'MangaDex : lecture d\'image OK ('+urls.length+' pages détectées)');
+        }
+      }
+    }catch(e){ add(false,'MangaDex : '+(e.message||'échec du test de lecture')); }
+  }
+  let asOk=false;
+  try{
+    const cards=await AS.search('',1);
+    asOk=cards.length>0;
+    add(asOk,'Anime-Sama : catalogue accessible ('+cards.length+' œuvres chargées)');
+  }catch(e){ add(false,'Anime-Sama : '+(e.message||'injoignable')+' · le domaine a peut-être changé (⋮ → « Proxy en ligne… », champ « Domaine Anime-Sama »)');
+  }
+  if(asOk){
+    let tested=false,lastErr='';
+    try{
+      const cards=await AS.search('naruto',1);
+      for(const card of cards.slice(0,3)){
+        if(tested)break;
+        try{
+          const html=await AS.text(card.url);
+          const base=AS.dom().replace(/\/+$/,'')+'/'+String(card.url).replace(/^https?:\/\/[^/]+/,'').replace(/^\/+/,'').replace(/\/+$/,'');
+          const secs=asParseSections(html,base);
+          if(!secs.length)continue;
+          const sec=secs[0];
+          const cands=[sec.url];
+          if(!/\/(vf|va)\/$/i.test(sec.url))cands.push(sec.url+'vf/',sec.url+'va/');
+          for(const cu of cands){
+            if(tested)break;
+            try{
+              const h2=await AS.text(cu);
+              const bn=asParseBookName(h2,card.title);
+              const chs=await asApiChapters(bn);
+              if(!chs.length)continue;
+              const imgBase=AS.dom()+'/s2/scans/'+encodeURIComponent(bn)+'/'+chs[0]+'/';
+              const b=await MD.blob(imgBase+'1.jpg');
+              if(b&&b.size>1000){ add(true,'Anime-Sama : lecture d\'image OK (« '+bn+' », chapitre '+chs[0]+')'); tested=true; }
+            }catch(e){ lastErr=e.message||String(e); }
+          }
+        }catch(e){ lastErr=e.message||String(e); }
+      }
+      if(!tested)add(false,'Anime-Sama : échec du test de lecture'+(lastErr?(' · '+lastErr):''));
+    }catch(e){ add(false,'Anime-Sama : '+(e.message||'échec du test de lecture')); }
+  }
+  rows.push('<div class="diag-row"><span class="diag-txt">Test terminé. Toutes les lignes vertes = tout fonctionne. Sinon, transmettez les messages rouges à votre assistant.</span></div>');
+  list.innerHTML=rows.join('');
+  hydrateIcons(list);
 }
 
 /* ============ BROWSER ============ */
@@ -3091,9 +3246,10 @@ function openMainMenu(){
     { icon:'downloadCloud', label:'Importer la progression', action:()=>$('#import-progress-input').click() },
     { icon:'collection', label:'Classer automatiquement mes mangas', action:()=>autoClassify(false) },
     { icon:'globe', label:'Proxy en ligne…', action:openMangaDexSettings },
+    { icon:'shield', label:'Test de connexion', action:runDiag },
     { icon:'info', label:'Revoir le guide de lecture', action:()=>{ Store.set('konoha_tutorial_v2',''); showReaderTutorial(); } },
     { icon:'info', label:'À propos', action:()=>{
-      showInfoSheet('À propos','<div style="text-align:center;padding:10px 0 18px"><div style="font-size:52px;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 14px rgba(124,108,255,.4))">火</div><div style="font-size:19px;font-weight:800;margin-top:8px">Konoha</div><div style="color:var(--dim);font-size:12.5px;margin-top:4px">v2.3 · Mangas & animés</div></div><p style="color:var(--dim);font-size:13.5px;line-height:1.6;margin:0">Vos mangas restent sur votre appareil. Aucune donnée n\'est envoyée.</p>');
+      showInfoSheet('À propos','<div style="text-align:center;padding:10px 0 18px"><div style="font-size:52px;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 14px rgba(124,108,255,.4))">火</div><div style="font-size:19px;font-weight:800;margin-top:8px">Konoha</div><div style="color:var(--dim);font-size:12.5px;margin-top:4px">v2.5 · Onglet En ligne repensé</div></div><p style="color:var(--dim);font-size:13.5px;line-height:1.6;margin:0">Vos mangas restent sur votre appareil. Aucune donnée n\'est envoyée.</p>');
     }},
   ]);
 }
@@ -3896,6 +4052,20 @@ function showView(name){
   $('#view-anime').classList.toggle('hidden',name!=='anime');
   $('#view-reader').classList.toggle('hidden',name!=='reader');
 }
+let onlineSrc=Store.get('mr_onlineSrc','md')||'md';
+function switchOnlineSrc(src){
+  onlineSrc=src;
+  Store.set('mr_onlineSrc',src);
+  const tabs=$('#src-tabs');
+  if(tabs)$$('#src-tabs .src-tab').forEach(t=>t.classList.toggle('active',t.dataset.src===src));
+  const pmd=$('#src-md'),pas=$('#src-as'),pot=$('#src-other');
+  if(pmd)pmd.classList.toggle('hidden',src!=='md');
+  if(pas)pas.classList.toggle('hidden',src!=='as');
+  if(pot)pot.classList.toggle('hidden',src!=='other');
+  if(src==='md'){ renderCatalog(); if(!mdLoaded&&MD.ready())mdFetch(true); }
+  else if(src==='as'){ renderAsCatalog(); if(!asLoaded&&AS.ready())asFetch(true); }
+  else renderSources();
+}
 function switchTab(tab){
   currentTab=tab;
   $$('#tabs .tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
@@ -3905,7 +4075,7 @@ function switchTab(tab){
   $('#online-content').classList.toggle('hidden',!isOn);
   if(!isLib)$('#search-bar').classList.add('hidden');
   if(isSer)renderSeries();
-  if(isOn){ renderCatalog(); if(!mdLoaded&&MD.ready())mdFetch(true); renderAsCatalog(); if(!asLoaded&&AS.ready())asFetch(true); }
+  if(isOn)switchOnlineSrc(onlineSrc);
 }
 function syncSettingsUI(){
   $$('#seg-mode button').forEach(b=>b.classList.toggle('active',b.dataset.mode===settings.readMode));
@@ -3928,6 +4098,9 @@ function bindEvents(){
     btnImport.addEventListener('click',()=>fileInput.click());
     fileInput.addEventListener('change',async e=>{ const files=e.target.files; if(files&&files.length){ await importFiles(files); fileInput.value=''; } });
   }
+
+  const srcTabs=$('#src-tabs');
+  if(srcTabs)srcTabs.addEventListener('click',e=>{ const t=e.target.closest('.src-tab'); if(t)switchOnlineSrc(t.dataset.src); });
 
   const urlBtn=$('#url-btn'), urlInput=$('#url-input');
   if(urlBtn)urlBtn.addEventListener('click',e=>{ e.preventDefault(); importFromURL(); });
@@ -4215,6 +4388,13 @@ async function init(){
   }
   try{
     comics=await DB.allComics(); seriesList=await DB.allSeries();
+    if(Store.get('mr_asSeriesFix')!=='1'){
+      let fixed=0;
+      comics.forEach(c=>{
+        if(c.online&&c.online.as&&c.online.as.bookName&&c.series&&c.series!==c.online.as.bookName){ c.series=c.online.as.bookName; DB.putComic(c).catch(()=>{}); fixed++; }
+      });
+      if(fixed)Store.set('mr_asSeriesFix','1');
+    }
     render(); renderSeries();
   }catch(e){ console.error(e); }
   try{ hydrateIcons(document); }catch(e){}
